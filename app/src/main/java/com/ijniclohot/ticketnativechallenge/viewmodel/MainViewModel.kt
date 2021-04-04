@@ -21,7 +21,7 @@ class MainViewModel : ViewModel() {
         super.onCleared()
     }
 
-    private fun getGithubUserLiveData(): LiveData<Resource<List<GithubUser>>> {
+    fun getGithubUserLiveData(): LiveData<Resource<List<GithubUser>>> {
         return githubUserLiveData
     }
 
