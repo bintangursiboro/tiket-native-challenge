@@ -4,14 +4,15 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.widget.Button
+import android.widget.EditText
 import android.widget.Toast
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.ijniclohot.ticketnativechallenge.R
 import com.ijniclohot.ticketnativechallenge.base_view.BaseListViewInterface
-import com.ijniclohot.ticketnativechallenge.model.CustomViewModelFactory
+import com.ijniclohot.ticketnativechallenge.factory.viewmodel.CustomViewModelFactory
 import com.ijniclohot.ticketnativechallenge.model.GithubUser
 import com.ijniclohot.ticketnativechallenge.model.Status
 import com.ijniclohot.ticketnativechallenge.viewmodel.MainViewModel
@@ -52,23 +53,24 @@ class MainActivity : AppCompatActivity(), BaseListViewInterface<GithubUser> {
     }
 
     private fun initButton() {
+
         searchButton.isEnabled = false
 
         searchButton.setOnClickListener {
-            mainViewModel.retrieveUsers(usernameTextView.text.toString())
+            mainViewModel.retrieveUsers(userEditText.text.toString())
         }
     }
 
     private fun initEditText() {
-        usernameTextView.addTextChangedListener(object : TextWatcher {
+        userEditText.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
 
             }
 
             override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
                 if (p0 == null) {
-                    userEditText.isEnabled = false
-                } else userEditText.isEnabled = p0.isNotEmpty()
+                    searchButton.isEnabled = false
+                } else searchButton.isEnabled = p0.isNotEmpty()
             }
 
             override fun afterTextChanged(p0: Editable?) {

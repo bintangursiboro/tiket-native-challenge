@@ -29,7 +29,7 @@ class MainViewModel : ViewModel() {
         githubUserLiveData.postValue(Resource.loading(null))
 
         disposable.add(
-            networkingInstance.getUsers(username, page, 10).subscribeOn(Schedulers.io())
+            networkingInstance.getUsers(username, page, 15).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread()).subscribe({ onSuccess ->
                     githubUserLiveData.postValue(Resource.success(onSuccess.items))
                     page++

@@ -1,4 +1,4 @@
-package com.ijniclohot.ticketnativechallenge.model
+package com.ijniclohot.ticketnativechallenge.factory.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
