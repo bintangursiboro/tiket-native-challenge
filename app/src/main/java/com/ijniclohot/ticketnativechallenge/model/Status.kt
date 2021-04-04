@@ -17,6 +17,14 @@ data class Resource<out T>(
         fun <T> loading(data: T?): Resource<T> {
             return Resource(Status.LOADING, data, null)
         }
+
+        fun <T> loadMore(data: T?): Resource<T> {
+            return Resource(Status.LOAD_MORE, data, null)
+        }
+
+        fun <T> loadMoreError(data: T?, msg: String): Resource<T> {
+            return Resource(Status.LOAD_MORE_ERROR, data, msg)
+        }
     }
 }
 
@@ -24,4 +32,6 @@ enum class Status {
     SUCCESS,
     ERROR,
     LOADING,
+    LOAD_MORE,
+    LOAD_MORE_ERROR,
 }
