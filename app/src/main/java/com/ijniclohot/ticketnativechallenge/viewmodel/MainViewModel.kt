@@ -26,13 +26,21 @@ class MainViewModel : ViewModel() {
     }
 
     fun retrieveUsers(username: String) {
+        page = 1
+
         githubUserLiveData.postValue(Resource.loading(null))
 
         disposable.add(
             networkingInstance.getUsers(username, page, 15).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread()).subscribe({ onSuccess ->
-                    githubUserLiveData.postValue(Resource.success(onSuccess.items))
-                    page++
+
+                    if (onSuccess.items.isEmpty()) {
+                        githubUserLiveData.postValue(Resource.error("Username not found", null))
+                    } else {
+                        githubUserLiveData.postValue(Resource.success(onSuccess.items))
+                        page++
+                    }
+
                 }, { onError ->
                     githubUserLiveData.postValue(Resource.error("Something wrong happened.", null))
                     onError.printStackTrace()

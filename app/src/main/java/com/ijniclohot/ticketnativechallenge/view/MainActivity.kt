@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
@@ -47,7 +48,9 @@ class MainActivity : AppCompatActivity(), BaseListViewInterface<GithubUser> {
                 Status.LOAD_MORE_ERROR -> {
                     onErrorLoadMore(it.message!!)
                 }
-                else -> return@Observer
+                Status.LOADING -> {
+                    onLoadingView()
+                }
             }
         })
     }
@@ -57,6 +60,10 @@ class MainActivity : AppCompatActivity(), BaseListViewInterface<GithubUser> {
         searchButton.isEnabled = false
 
         searchButton.setOnClickListener {
+            mainViewModel.retrieveUsers(userEditText.text.toString())
+        }
+
+        retryButton.setOnClickListener {
             mainViewModel.retrieveUsers(userEditText.text.toString())
         }
     }
@@ -96,18 +103,38 @@ class MainActivity : AppCompatActivity(), BaseListViewInterface<GithubUser> {
     }
 
     override fun onSuccessView(dataList: List<GithubUser>) {
+        userRecyclerView.visibility = View.VISIBLE
+
+        loadProgressBar.visibility = View.GONE
+
+        errorLayout.visibility = View.GONE
+
         mainAdapter.refreshData(dataList as ArrayList<GithubUser>)
     }
 
     override fun onErrorView(errorMsg: String) {
+        userRecyclerView.visibility = View.GONE
 
+        loadProgressBar.visibility = View.GONE
+
+        errorLayout.visibility = View.VISIBLE
+
+        errorTextView.text = errorMsg
     }
 
     override fun onLoadMoreView() {
-
+        loadProgressBar.visibility = View.VISIBLE
     }
 
     override fun onErrorLoadMore(errorMsg: String) {
         Toast.makeText(this, errorMsg, Toast.LENGTH_SHORT).show()
+    }
+
+    override fun onLoadingView() {
+        loadProgressBar.visibility = View.VISIBLE
+
+        userRecyclerView.visibility = View.GONE
+
+        errorLayout.visibility = View.GONE
     }
 }

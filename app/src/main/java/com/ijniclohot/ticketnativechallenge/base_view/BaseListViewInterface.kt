@@ -8,4 +8,6 @@ interface BaseListViewInterface<T> {
     fun onLoadMoreView()
 
     fun onErrorLoadMore(errorMsg: String)
+
+    fun onLoadingView()
 }
