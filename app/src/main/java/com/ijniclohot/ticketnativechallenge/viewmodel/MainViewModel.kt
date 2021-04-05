@@ -14,6 +14,7 @@ class MainViewModel : ViewModel() {
     private val githubUserLiveData = MutableLiveData<Resource<List<GithubUser>>>()
     private val disposable = CompositeDisposable()
     private var page = 1
+    private lateinit var username: String
     private val networkingInstance = NetworkingInstance.apiService
 
     override fun onCleared() {
@@ -26,6 +27,8 @@ class MainViewModel : ViewModel() {
     }
 
     fun retrieveUsers(username: String) {
+        this.username = username
+
         page = 1
 
         githubUserLiveData.postValue(Resource.loading(null))
@@ -50,13 +53,15 @@ class MainViewModel : ViewModel() {
 
     }
 
-    fun loadMoreData(username: String) {
+    fun loadMoreData() {
         githubUserLiveData.postValue(Resource.loadMore(githubUserLiveData.value!!.data))
 
         disposable.add(
-            networkingInstance.getUsers(username, page, 10).subscribeOn(Schedulers.io())
+            networkingInstance.getUsers(username, page, 15).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread()).subscribe({ onSuccess ->
-                    githubUserLiveData.postValue(Resource.success(onSuccess.items))
+                    val currentValue = githubUserLiveData.value!!.data as ArrayList
+                    currentValue.addAll(onSuccess.items)
+                    githubUserLiveData.postValue(Resource.success(currentValue))
                     page++
                 }, { onError ->
                     githubUserLiveData.postValue(

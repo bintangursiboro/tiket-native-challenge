@@ -11,6 +11,7 @@ import android.widget.Toast
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.ijniclohot.ticketnativechallenge.R
 import com.ijniclohot.ticketnativechallenge.base_view.BaseListViewInterface
 import com.ijniclohot.ticketnativechallenge.factory.viewmodel.CustomViewModelFactory
@@ -23,6 +24,7 @@ import kotlinx.android.synthetic.main.github_user_item_layout.*
 class MainActivity : AppCompatActivity(), BaseListViewInterface<GithubUser> {
     private lateinit var mainAdapter: MainAdapter
     private lateinit var mainViewModel: MainViewModel
+    private lateinit var linearLayoutManager: LinearLayoutManager
 
     private fun initView() {
         initViewModel()
@@ -90,9 +92,31 @@ class MainActivity : AppCompatActivity(), BaseListViewInterface<GithubUser> {
     private fun initRecyclerView() {
         mainAdapter = MainAdapter(ArrayList(), this)
 
-        userRecyclerView.layoutManager = LinearLayoutManager(this)
+        linearLayoutManager = LinearLayoutManager(this)
+
+        userRecyclerView.layoutManager = linearLayoutManager
 
         userRecyclerView.adapter = mainAdapter
+
+        userRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                if (dy > 0) {
+                    val visibleItemCount = linearLayoutManager.childCount
+
+                    val pastVisibleItem = linearLayoutManager.findFirstCompletelyVisibleItemPosition()
+
+                    val total = mainAdapter.itemCount
+
+                    if (mainViewModel.getGithubUserLiveData().value!!.status != Status.LOAD_MORE) {
+                        if ((visibleItemCount + pastVisibleItem) >= total) {
+                            mainViewModel.loadMoreData()
+                        }
+                    }
+
+                }
+                super.onScrolled(recyclerView, dx, dy)
+            }
+        })
     }
 
 
