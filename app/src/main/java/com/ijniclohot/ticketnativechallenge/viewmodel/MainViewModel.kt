@@ -14,6 +14,9 @@ class MainViewModel : ViewModel() {
     private val githubUserLiveData = MutableLiveData<Resource<List<GithubUser>>>()
     private val disposable = CompositeDisposable()
     private var page = 1
+
+    private var totalCount: Long = 0
+
     private lateinit var username: String
     private val networkingInstance = NetworkingInstance.apiService
 
@@ -37,6 +40,8 @@ class MainViewModel : ViewModel() {
             networkingInstance.getUsers(username, page, 15).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread()).subscribe({ onSuccess ->
 
+                    totalCount = onSuccess.totalCount
+
                     if (onSuccess.items.isEmpty()) {
                         githubUserLiveData.postValue(Resource.error("Username not found", null))
                     } else {
@@ -45,6 +50,7 @@ class MainViewModel : ViewModel() {
                     }
 
                 }, { onError ->
+                    totalCount = 0
                     githubUserLiveData.postValue(Resource.error("Something wrong happened.", null))
                     onError.printStackTrace()
                 })
@@ -54,12 +60,24 @@ class MainViewModel : ViewModel() {
     }
 
     fun loadMoreData() {
+        val currentValue = githubUserLiveData.value!!.data as ArrayList
+
+        if (totalCount <= currentValue.size) {
+            githubUserLiveData.postValue(
+                Resource.loadMoreError(
+                    githubUserLiveData.value!!.data,
+                    "No More Data to Load"
+                )
+            )
+            return
+        }
+
         githubUserLiveData.postValue(Resource.loadMore(githubUserLiveData.value!!.data))
 
         disposable.add(
             networkingInstance.getUsers(username, page, 15).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread()).subscribe({ onSuccess ->
-                    val currentValue = githubUserLiveData.value!!.data as ArrayList
+
                     currentValue.addAll(onSuccess.items)
                     githubUserLiveData.postValue(Resource.success(currentValue))
                     page++
